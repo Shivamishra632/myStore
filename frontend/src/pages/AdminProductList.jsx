@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useContext } from "react";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
@@ -31,39 +32,135 @@ export default function AdminProductList() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between mb-4">
-        <h2 className="text-xl font-bold">Admin Products</h2>
-        <Link
-          to="/admin/product/create"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Create Product
-        </Link>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+
+      <div className="max-w-6xl mx-auto">
+
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-8">
+
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+            Product Management
+          </h2>
+
+          <Link
+            to="/admin/product/create"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition"
+          >
+            + Create Product
+          </Link>
+
+        </div>
+
+        {/* TABLE */}
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+
+          <table className="w-full text-left">
+
+            <thead className="bg-gray-200 dark:bg-gray-700">
+
+              <tr>
+
+                <th className="p-4">Image</th>
+                <th className="p-4">Name</th>
+                <th className="p-4">Price</th>
+                <th className="p-4">Stock</th>
+                <th className="p-4 text-right">Actions</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {products.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="p-8 text-center text-gray-500">
+                    No products found
+                  </td>
+                </tr>
+              ) : (
+
+                products.map((product) => (
+
+                  <tr
+                    key={product._id}
+                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  >
+
+                    {/* IMAGE */}
+
+                    <td className="p-4">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-14 h-14 object-cover rounded"
+                      />
+                    </td>
+
+                    {/* NAME */}
+
+                    <td className="p-4 font-medium text-gray-800 dark:text-white">
+                      {product.name}
+                    </td>
+
+                    {/* PRICE */}
+
+                    <td className="p-4 text-gray-600 dark:text-gray-300">
+                      ₹{product.price}
+                    </td>
+
+                    {/* STOCK */}
+
+                    <td className="p-4">
+
+                      {product.countInStock > 0 ? (
+                        <span className="text-green-600 font-semibold">
+                          In Stock
+                        </span>
+                      ) : (
+                        <span className="text-red-500 font-semibold">
+                          Out of Stock
+                        </span>
+                      )}
+
+                    </td>
+
+                    {/* ACTIONS */}
+
+                    <td className="p-4 text-right">
+
+                      <Link
+                        to={`/admin/product/${product._id}/edit`}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-3 text-sm"
+                      >
+                        Edit
+                      </Link>
+
+                      <button
+                        onClick={() => deleteHandler(product._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                      >
+                        Delete
+                      </button>
+
+                    </td>
+
+                  </tr>
+
+                ))
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
       </div>
 
-      {products.map((product) => (
-        <div
-          key={product._id}
-          className="flex justify-between border-b py-2"
-        >
-          <span>{product.name}</span>
-          <div>
-            <Link
-              to={`/admin/product/${product._id}/edit`}
-              className="text-blue-600 mr-3"
-            >
-              Edit
-            </Link>
-            <button
-              onClick={() => deleteHandler(product._id)}
-              className="text-red-600"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
+

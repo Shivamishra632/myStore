@@ -6,11 +6,11 @@ import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
-import { ThemeProvider } from "./context/ThemeContext";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ThemeProvider>
+   
     <AuthProvider>
       <CartProvider>
        
@@ -19,6 +19,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Toaster position="top-right" />
       </CartProvider>
     </AuthProvider>
-    </ThemeProvider>
+  
   </React.StrictMode>
 );

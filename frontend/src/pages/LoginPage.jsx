@@ -1,7 +1,8 @@
+
 import { useState, useContext, useEffect } from "react";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -33,52 +34,70 @@ export default function LoginPage() {
       toast.success("Login successful 🎉");
       navigate("/");
     } catch (err) {
-       navigate("/register");
-       toast.error("Login failed. Please register first.");
+      navigate("/register");
+      toast.error("Login failed. Please register first.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={submitHandler}
-      className="p-6 max-w-sm mx-auto"
-    >
-      <h2 className="text-xl font-bold mb-4 text-center">
-        Login
-      </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
 
-      {error && (
-        <div className="bg-red-100 text-red-600 p-2 mb-3 rounded">
-          {error}
-        </div>
-      )}
+      <div className="bg-white shadow-lg rounded-xl w-full max-w-md p-8">
 
-      <input
-        type="email"
-        placeholder="Email"
-        className="border p-2 w-full mb-3"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Welcome Back 👋
+        </h2>
 
-      <input
-        type="password"
-        placeholder="Password"
-        className="border p-2 w-full mb-3"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+        {error && (
+          <div className="bg-red-100 text-red-600 p-3 mb-4 rounded">
+            {error}
+          </div>
+        )}
 
-      <button
-        className="bg-blue-600 text-white w-full py-2 rounded"
-        disabled={loading}
-      >
-        {loading ? "Logging in..." : "Login"}
-      </button>
-    </form>
+        <form onSubmit={submitHandler} className="space-y-4">
+
+          <input
+            type="email"
+            placeholder="Email address"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+        </form>
+
+        <p className="text-sm text-gray-500 text-center mt-6">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-blue-600 hover:underline"
+          >
+            Register
+          </Link>
+        </p>
+
+      </div>
+
+    </div>
   );
 }
+

@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -33,10 +34,7 @@ export default function AdminOrders() {
 
   const updateStatus = async (id, status) => {
     try {
-      const { data } = await API.put(
-        `/orders/${id}/status`,
-        { status }
-      );
+      const { data } = await API.put(`/orders/${id}/status`, { status });
 
       setOrders(
         orders.map((order) =>
@@ -51,47 +49,102 @@ export default function AdminOrders() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen text-lg">
+        Loading orders...
+      </div>
+    );
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">
-        Admin Orders
-      </h2>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
 
-      {orders.map((order) => (
-        <div
-          key={order._id}
-          className="border-b py-4 flex justify-between items-center"
-        >
-          <div>
-            <p><strong>ID:</strong> {order._id}</p>
-            <p><strong>User:</strong> {order.user?.name}</p>
-            <p><strong>Total:</strong> ₹{order.totalPrice}</p>
-            <p><strong>Paid:</strong> {order.isPaid ? "Yes" : "No"}</p>
+      <div className="max-w-6xl mx-auto">
 
-            <div className="mt-2">
-              <label className="mr-2 font-semibold">
-                Status:
-              </label>
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">
+          Order Management
+        </h2>
 
-              <select
-                value={order.status}
-                onChange={(e) =>
-                  updateStatus(order._id, e.target.value)
-                }
-                className="border p-1 rounded"
-              >
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-x-auto">
+
+          <table className="w-full text-left">
+
+            <thead className="bg-gray-200 dark:bg-gray-700">
+              <tr>
+                <th className="p-4">Order ID</th>
+                <th className="p-4">User</th>
+                <th className="p-4">Total</th>
+                <th className="p-4">Payment</th>
+                <th className="p-4">Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {orders.map((order) => (
+
+                <tr
+                  key={order._id}
+                  className="border-b hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                >
+
+                  <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
+                    {order._id.slice(-8)}
+                  </td>
+
+                  <td className="p-4 font-medium text-gray-800 dark:text-white">
+                    {order.user?.name}
+                  </td>
+
+                  <td className="p-4 text-gray-600 dark:text-gray-300">
+                    ₹{order.totalPrice}
+                  </td>
+
+                  <td className="p-4">
+
+                    {order.isPaid ? (
+                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                        Paid
+                      </span>
+                    ) : (
+                      <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">
+                        Pending
+                      </span>
+                    )}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    <select
+                      value={order.status}
+                      onChange={(e) =>
+                        updateStatus(order._id, e.target.value)
+                      }
+                      className="border rounded-lg px-3 py-1 bg-white dark:bg-gray-900 dark:text-white"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
         </div>
-      ))}
+
+      </div>
+
     </div>
   );
 }
+

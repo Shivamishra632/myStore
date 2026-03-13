@@ -1,3 +1,4 @@
+
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -20,7 +21,6 @@ export default function AdminCreateProduct() {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
 
-
   const uploadHandler = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
@@ -29,21 +29,18 @@ export default function AdminCreateProduct() {
     try {
       setUploading(true);
       const { data } = await API.post("/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
       setImage(data.imageUrl);
       toast.success("Image uploaded successfully");
+
     } catch (error) {
       toast.error("Failed to upload image");
     } finally {
       setUploading(false);
     }
   };
-
-
-
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -69,8 +66,10 @@ export default function AdminCreateProduct() {
         description,
         image,
       });
+
       toast.success("Product created successfully");
       navigate("/admin/products");
+
     } catch (err) {
       toast.error("Failed to create product");
     } finally {
@@ -79,93 +78,123 @@ export default function AdminCreateProduct() {
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <h2 className="text-xl font-bold mb-4">Create Product</h2>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
 
-      {error && (
-        <p className="text-red-500 mb-3">{error}</p>
-      )}
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-8">
 
-      <form onSubmit={submitHandler} className="space-y-3">
-        <input
-          type="text"
-          placeholder="Product Name"
-          className="border p-2 w-full"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          Create New Product
+        </h2>
 
-        <input
-          type="number"
-          placeholder="Price"
-          className="border p-2 w-full"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-        />
+        {error && (
+          <p className="text-red-500 mb-4">{error}</p>
+        )}
 
-        <input
-          type="text"
-          placeholder="Brand"
-          className="border p-2 w-full"
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-        />
+        <form
+          onSubmit={submitHandler}
+          className="grid md:grid-cols-2 gap-5"
+        >
 
-        <input
-          type="text"
-          placeholder="Category"
-          className="border p-2 w-full"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
-
-        <input
-          type="number"
-          placeholder="Stock"
-          className="border p-2 w-full"
-          value={countInStock}
-          onChange={(e) => setCountInStock(e.target.value)}
-        />
-
-        <div>
+          {/* NAME */}
           <input
-            type="file"
-            onChange={uploadHandler}
-            className="border p-2 w-full"
+            type="text"
+            placeholder="Product Name"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
 
-          {uploading && (
-            <p className="text-blue-500 mt-2">
-              Uploading image...
-            </p>
-          )}
+          {/* PRICE */}
+          <input
+            type="number"
+            placeholder="Price"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
 
-          {image && (
-            <img
-              src={image}
-              alt="Preview"
-              className="mt-3 h-32 object-cover rounded"
+          {/* BRAND */}
+          <input
+            type="text"
+            placeholder="Brand"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+          />
+
+          {/* CATEGORY */}
+          <input
+            type="text"
+            placeholder="Category"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+
+          {/* STOCK */}
+          <input
+            type="number"
+            placeholder="Stock"
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500"
+            value={countInStock}
+            onChange={(e) => setCountInStock(e.target.value)}
+          />
+
+          {/* IMAGE UPLOAD */}
+          <div className="col-span-full">
+
+            <label className="block font-medium mb-2">
+              Product Image
+            </label>
+
+            <input
+              type="file"
+              onChange={uploadHandler}
+              className="border rounded-lg px-3 py-2 w-full"
             />
-          )}
-        </div>
 
-        <textarea
-          placeholder="Description"
-          className="border p-2 w-full"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+            {uploading && (
+              <p className="text-blue-500 mt-2">
+                Uploading image...
+              </p>
+            )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded w-full"
-        >
-          {loading ? "Creating..." : "Create Product"}
-        </button>
-      </form>
+            {image && (
+              <div className="mt-3">
+                <img
+                  src={image}
+                  alt="Preview"
+                  className="h-32 rounded-lg object-cover border"
+                />
+              </div>
+            )}
+
+          </div>
+
+          {/* DESCRIPTION */}
+          <textarea
+            placeholder="Description"
+            className="border rounded-lg px-3 py-2 w-full col-span-full focus:ring-2 focus:ring-green-500"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          {/* BUTTON */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="col-span-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition"
+          >
+            {loading ? "Creating Product..." : "Create Product"}
+          </button>
+
+        </form>
+
+      </div>
+
     </div>
   );
 }
+

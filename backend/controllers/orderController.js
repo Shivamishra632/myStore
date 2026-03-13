@@ -1,3 +1,4 @@
+
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 
@@ -14,8 +15,11 @@ export const addOrderItems = async (req, res) => {
   }
 
   try {
-    // 🔹 Reduce Stock
+
+    /* 🔹 Reduce Stock */
+
     for (const item of orderItems) {
+
       const product = await Product.findById(item.product);
 
       if (!product) {
@@ -27,6 +31,7 @@ export const addOrderItems = async (req, res) => {
       }
 
       product.countInStock -= item.qty;
+
       await product.save();
     }
 
@@ -41,6 +46,36 @@ export const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+
+    /* 🔔 LIVE ORDER NOTIFICATION */
+
+    if (global.io) {
+      global.io.emit("newOrder", {
+        orderId: createdOrder._id,
+        total: createdOrder.totalPrice
+      });
+    }
+
+
+    /* 📊 REAL TIME SALES ANALYTICS */
+
+    const revenue = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$totalPrice" }
+        }
+      }
+    ]);
+
+    const totalRevenue = revenue[0]?.total || 0;
+
+    if (global.io) {
+      global.io.emit("salesUpdate", totalRevenue);
+    }
+
+
     res.status(201).json(createdOrder);
 
   } catch (error) {
@@ -53,14 +88,18 @@ export const addOrderItems = async (req, res) => {
    2️⃣ Get Logged-in User Orders
 ================================= */
 export const getMyOrders = async (req, res) => {
+
   try {
+
     const orders = await Order.find({ user: req.user._id })
       .sort({ createdAt: -1 });
 
     res.json(orders);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+
 };
 
 
@@ -68,23 +107,34 @@ export const getMyOrders = async (req, res) => {
    3️⃣ Get Order By ID
 ================================= */
 export const getOrderById = async (req, res) => {
+
   try {
+
     const order = await Order.findById(req.params.id)
       .populate("user", "_id name email");
 
     if (
       order &&
-      (order.user._id.toString() === req.user._id.toString() ||
-        req.user.isAdmin)
+      (
+        order.user._id.toString() === req.user._id.toString()
+        || req.user.isAdmin
+      )
     ) {
+
       res.json(order);
+
     } else {
+
       res.status(404).json({ message: "Order not found" });
+
     }
 
   } catch (error) {
+
     res.status(500).json({ message: error.message });
+
   }
+
 };
 
 
@@ -92,14 +142,19 @@ export const getOrderById = async (req, res) => {
    4️⃣ Update Order To Paid
 ================================= */
 export const updateOrderToPaid = async (req, res) => {
+
   try {
+
     const order = await Order.findById(req.params.id);
 
     if (
       order &&
-      (order.user.toString() === req.user._id.toString() ||
-        req.user.isAdmin)
+      (
+        order.user.toString() === req.user._id.toString()
+        || req.user.isAdmin
+      )
     ) {
+
       order.isPaid = true;
       order.paidAt = Date.now();
 
@@ -110,15 +165,21 @@ export const updateOrderToPaid = async (req, res) => {
       };
 
       const updatedOrder = await order.save();
+
       res.json(updatedOrder);
 
     } else {
+
       res.status(404).json({ message: "Order not found" });
+
     }
 
   } catch (error) {
+
     res.status(500).json({ message: error.message });
+
   }
+
 };
 
 
@@ -126,6 +187,7 @@ export const updateOrderToPaid = async (req, res) => {
    5️⃣ Update Order Status (Admin)
 ================================= */
 export const updateOrderStatus = async (req, res) => {
+
   const { status } = req.body;
 
   const validStatuses = [
@@ -141,6 +203,7 @@ export const updateOrderStatus = async (req, res) => {
   }
 
   try {
+
     const order = await Order.findById(req.params.id);
 
     if (!order) {
@@ -150,18 +213,25 @@ export const updateOrderStatus = async (req, res) => {
     order.status = status;
 
     if (status === "Delivered") {
+
       order.isDelivered = true;
       order.deliveredAt = Date.now();
+
       order.isPaid = true;
       order.paidAt = Date.now();
+
     }
 
     const updatedOrder = await order.save();
+
     res.json(updatedOrder);
 
   } catch (error) {
+
     res.status(500).json({ message: error.message });
+
   }
+
 };
 
 
@@ -169,7 +239,9 @@ export const updateOrderStatus = async (req, res) => {
    6️⃣ Get All Orders (Admin)
 ================================= */
 export const getOrders = async (req, res) => {
+
   try {
+
     const orders = await Order.find({})
       .populate("user", "_id name email")
       .sort({ createdAt: -1 });
@@ -177,6 +249,10 @@ export const getOrders = async (req, res) => {
     res.json(orders);
 
   } catch (error) {
+
     res.status(500).json({ message: error.message });
+
   }
+
 };
+

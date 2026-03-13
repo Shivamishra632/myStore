@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
@@ -65,27 +66,104 @@ export default function AdminEditProduct() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-60 text-lg">
+        Loading product...
+      </div>
+    );
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+    <div className="min-h-screen bg-gray-100 px-4 py-10">
 
-      {error && <p className="text-red-500 mb-3">{error}</p>}
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-8">
 
-      <form onSubmit={submitHandler} className="space-y-3">
-        <input className="border p-2 w-full" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className="border p-2 w-full" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
-        <input className="border p-2 w-full" value={brand} onChange={(e) => setBrand(e.target.value)} />
-        <input className="border p-2 w-full" value={category} onChange={(e) => setCategory(e.target.value)} />
-        <input className="border p-2 w-full" type="number" value={countInStock} onChange={(e) => setCountInStock(e.target.value)} />
-        <input className="border p-2 w-full" value={image} onChange={(e) => setImage(e.target.value)} />
-        <textarea className="border p-2 w-full" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          Edit Product
+        </h2>
 
-        <button className="bg-blue-600 text-white py-2 rounded w-full">
-          Update Product
-        </button>
-      </form>
+        {error && (
+          <p className="text-red-500 mb-4">{error}</p>
+        )}
+
+        <form
+          onSubmit={submitHandler}
+          className="grid md:grid-cols-2 gap-5"
+        >
+
+          <input
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Product Name"
+          />
+
+          <input
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Price"
+          />
+
+          <input
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            placeholder="Brand"
+          />
+
+          <input
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="Category"
+          />
+
+          <input
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
+            type="number"
+            value={countInStock}
+            onChange={(e) => setCountInStock(e.target.value)}
+            placeholder="Stock"
+          />
+
+          <input
+            className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            placeholder="Image URL"
+          />
+
+          {image && (
+            <div className="col-span-full">
+              <img
+                src={image}
+                alt="Preview"
+                className="h-32 rounded-lg border object-cover"
+              />
+            </div>
+          )}
+
+          <textarea
+            className="border rounded-lg px-3 py-2 w-full col-span-full focus:ring-2 focus:ring-blue-500"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Product Description"
+            rows="4"
+          />
+
+          <button
+            className="col-span-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition"
+          >
+            Update Product
+          </button>
+
+        </form>
+
+      </div>
+
     </div>
   );
 }
+

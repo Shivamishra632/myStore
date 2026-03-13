@@ -1,8 +1,9 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
-import StripePayment from "../components/StripePayment";
+import { toast } from "react-toastify";
 
 export default function OrderPage() {
   const { id } = useParams();
@@ -33,11 +34,49 @@ export default function OrderPage() {
     fetchOrder();
   }, [id, user, navigate]);
 
+  const handleRazorpayPayment = async () => {
+    try {
+
+      const orderRes = await API.post("/payment/create-order", {
+        amount: order.totalPrice
+      });
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: orderRes.data.amount,
+        currency: "INR",
+        name: "E-Commerce Store",
+        description: "Order Payment",
+        order_id: orderRes.data.id,
+
+        handler: async function (response) {
+
+          await API.put(`/payment/${order._id}`, {
+            razorpay_payment_id: response.razorpay_payment_id
+          });
+
+          toast.success("Payment Successful");
+
+          const { data } = await API.get(`/orders/${order._id}`);
+          setOrder(data);
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      console.log(err);
+      toast.error("Payment failed");
+    }
+  };
+
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
     <div className="p-6 max-w-lg mx-auto">
+
       <h2 className="text-xl font-bold mb-4">Order Details</h2>
 
       <p><strong>Order ID:</strong> {order._id}</p>
@@ -55,8 +94,7 @@ export default function OrderPage() {
       </p>
 
       <p>
-        <strong>Delivery Status:</strong>{" "}
-        {order.status}
+        <strong>Delivery Status:</strong> {order.status}
       </p>
 
       <h3 className="mt-4 font-semibold">Shipping Address:</h3>
@@ -76,17 +114,14 @@ export default function OrderPage() {
         </div>
       ))}
 
-      {/* 🔥 Stripe only if payment method is Stripe */}
-      {order.paymentMethod === "Stripe" && !order.isPaid && (
-        <StripePayment
-          orderId={order._id}
-          totalPrice={order.totalPrice}
-          onSuccess={async () => {
-            alert("Payment Successful!");
-            const { data } = await API.get(`/orders/${order._id}`);
-            setOrder(data);
-          }}
-        />
+      {/* Razorpay Payment Button */}
+      {order.paymentMethod === "Razorpay" && !order.isPaid && (
+        <button
+          onClick={handleRazorpayPayment}
+          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded w-full"
+        >
+          Pay with Razorpay
+        </button>
       )}
 
       {/* COD Notice */}
@@ -95,6 +130,8 @@ export default function OrderPage() {
           You will pay in cash when the order is delivered.
         </div>
       )}
+
     </div>
   );
 }
+

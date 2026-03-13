@@ -1,3 +1,4 @@
+
 import { createContext, useState, useEffect } from "react";
 
 export const CartContext = createContext();
@@ -37,6 +38,12 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  // 🆕 Clear Cart after order success
+  const clearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem("cartItems");
+  };
+
   // Save to localStorage
   useEffect(() => {
     localStorage.setItem(
@@ -47,9 +54,15 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart }}
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        clearCart
+      }}
     >
       {children}
     </CartContext.Provider>
   );
 };
+

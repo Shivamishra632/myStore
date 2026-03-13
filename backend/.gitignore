@@ -1,2 +1,14 @@
 .env
 node_modules/
+MONGO_URI=mongodb+srv://shivanshmishraa224_db_user:sWjn6mvz3GOLdOU9@cluster0.abedz2l.mongodb.net/ecommerce?appName=Cluster0
+
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxxx
+RAZORPAY_KEY_SECRET=xxxxxxxxxxxx
+
+JWT_SECRET=your_jwt_secret_key
+
+CLOUDINARY_CLOUD_NAME=Root
+CLOUDINARY_API_KEY=796453713129416
+CLOUDINARY_API_SECRET=***************
+
+PORT=5000

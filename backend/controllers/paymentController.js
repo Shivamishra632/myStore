@@ -1,34 +1,52 @@
-import Stripe from "stripe";
+import Razorpay from "razorpay";
 import asyncHandler from "express-async-handler";
 import Order from "../models/Order.js";
 
-let stripe;
+// Initialize Razorpay
+let razorpay = null;
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn("Stripe key not found");
+
+
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+
+  console.log("✅ Razorpay enabled");
 } else {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  console.log("⚠️ Razorpay disabled (keys not set)");
 }
 
-export const createPaymentIntent = asyncHandler(async (req, res) => {
-  if (!stripe) {
-    res.status(500);
-    throw new Error("Stripe not initialized");
+// Create Razorpay Order
+export const createRazorpayOrder = asyncHandler(async (req, res) => {
+
+  if (!razorpay) {
+    return res.status(503).json({
+      success: false,
+      message: "Payment service temporarily disabled",
+    });
   }
 
-  const { totalPrice } = req.body;
+  const { amount } = req.body;
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(totalPrice * 100),
-    currency: "inr",
-    payment_method_types: ["card"],
-  });
+  if (!amount || amount <= 0) {
+    res.status(400);
+    throw new Error("Invalid payment amount");
+  }
 
-  res.status(200).json({
-    clientSecret: paymentIntent.client_secret,
-  });
+  const options = {
+    amount: Math.round(amount * 100), // convert to paisa
+    currency: "INR",
+    receipt: "order_" + Date.now(),
+  };
+
+  const order = await razorpay.orders.create(options);
+
+  res.status(200).json(order);
 });
 
+// Update Payment Status
 export const updatePaymentStatus = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.orderId);
 
@@ -47,12 +65,14 @@ export const updatePaymentStatus = asyncHandler(async (req, res) => {
 
   order.isPaid = true;
   order.paidAt = Date.now();
+
   order.paymentResult = {
-    id: req.body.id,
-    status: req.body.status,
-    email_address: req.body.email_address,
+    id: req.body.razorpay_payment_id || "N/A",
+    status: "Success",
+    email_address: req.body.email || "N/A",
   };
 
   const updatedOrder = await order.save();
-  res.json(updatedOrder);
+
+  res.status(200).json(updatedOrder);
 });
